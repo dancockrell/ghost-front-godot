@@ -78,9 +78,36 @@ func _run() -> int:
 		"at 75%% true, off by %.1f points" % (gap_edge * 100.0))
 	_say("worst at maximum liability", gap_max > gap_edge and gap_edge > gap_safe,
 		"%.1f -> %.1f -> %.1f points" % [gap_safe * 100.0, gap_edge * 100.0, gap_max * 100.0])
-	_say("the lie is not a solvable constant offset",
-		(gap_max / maxf(gap_safe, 0.0001)) > 5.0,
-		"gap grows %.0fx from safe to critical" % (gap_max / maxf(gap_safe, 0.0001)))
+	# CAUTION ON THIS ONE, and it is the reason it carries a comment rather
+	# than just a threshold. The gap is OPTIMISM * t^2, so a ratio between two
+	# points is (t_b / t_a)^2 and the coefficient CANCELS. This ratio is 25x
+	# between 20% and 100% for every quadratic ever written, including one with
+	# OPTIMISM = 0.001 that is honest to three decimal places.
+	#
+	# So it tests the SHAPE (not linear, not constant) and nothing whatever
+	# about the size of the lie. It is named accordingly. The magnitude is
+	# guarded separately by gap_edge above, which is the check that would
+	# actually fail if someone made the form candid.
+	var ratio := gap_max / maxf(gap_safe, 0.0001)
+	_say("the gap is not a constant offset (shape only, not size)",
+		ratio > 5.0,
+		"%.0fx from 20%% to 100%% -- k-independent, see comment" % ratio)
+
+	# DEMONSTRATE the caution above rather than asserting it. A hypothetical
+	# near-honest form (OPTIMISM = 0.02) is run through both checks: it must
+	# PASS the shape check and FAIL the magnitude one. If that ever stops being
+	# true, the two checks have collapsed into one and the suite is saying less
+	# than it appears to.
+	var honest_k := 0.02
+	var honest_edge := honest_k * 0.75 * 0.75
+	var honest_safe := honest_k * 0.20 * 0.20
+	var honest_max := honest_k * 1.0 * 1.0
+	var honest_ratio := honest_max / honest_safe
+	_say("a near-honest form would still PASS the shape check",
+		honest_ratio > 5.0, "k=0.02 gives the same %.0fx" % honest_ratio)
+	_say("...and would FAIL the magnitude check, which is the real guard",
+		honest_edge <= 0.15,
+		"k=0.02 is off by only %.1f pts at the threshold" % (honest_edge * 100.0))
 
 	# The player must still be able to read CHANGE, or the form is useless
 	# rather than merely optimistic -- a bar that stalls or falls as the agent
