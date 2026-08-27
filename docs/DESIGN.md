@@ -133,6 +133,31 @@ Native also serves the arc better. A mined agent already knows how it ends; a
 native one discovers the criteria alongside the player, which is what the
 denied-requisition collectibles are built to deliver.
 
+## 5a. The presentation is Camp Iron Bell's self-portrait
+
+ART-SPEC §1a, from Dan: *"we should use japanese art to represent japanese.
+this will give them their own proud look. same with germans... not the usa look
+towards them, but their own face outwards."*
+
+Every faction is depicted **in its own visual tradition, as it wished to be
+seen** — never through an enemy's eyes. German Sachplakat and Expressionist
+woodcut for Werk Nachtigall, not an Allied cartoon of a German. This makes the
+opposition *scarier*, not softer: rule 5 says they win battles, and a
+caricature is both wrong and weaker.
+
+**And here is what that does to this game specifically.** If every faction gets
+a flattering self-portrait, then **Project 42's clean heroic look is also
+propaganda** — their poster, not the game's verdict.
+
+Which means the cheerful War Department HUD, the form-numbered abilities and
+the handler reading from a script are not decoration sitting next to the art.
+They are *the same object*: the entire presentation is Camp Iron Bell's
+self-image, and the denied requisitions are what leaks through it.
+
+That is worth stating plainly, because it is the difference between a UI theme
+and a load-bearing one. The HUD is diegetic. It is allowed to be wrong about
+things — cheerfully, in a serif face, with a form number.
+
 ## 6. Tone — Project 42 is the funny faction
 
 The bible is explicit that this faction carries the comedy, and that Fallout's
@@ -188,7 +213,22 @@ Ruled, with two **binding** additions beyond what was proposed.
 
 ## 8. Opposition — Werk Nachtigall
 
-Rule 4 is load-bearing: **no magic**, everything is science however appalling.
+**Rule 4 is dramatic motivation, not an imposed restriction, and that reframe
+is the spine of every archetype.** They get no magic **because they could not
+get any** — locked out of the geometry and out of contact, brute-forcing with
+meat and machinery what the other two factions get elegantly. They are the
+control group in their own experiment, they know it, and it makes them worse.
+
+Mechanically: **nothing they do is elegant.** No teleports, no phasing, no
+rewinding. They cover ground by running at you, reach you with mass, and solve
+problems by applying more of themselves. Where the player has three verbs, the
+Werk has weight, numbers and patience. No unit outruns the player — that is
+asserted in `EnemyProbe`, because it is a design promise and not a coincidence
+of tuning.
+
+Their voice is **procurement**: cost variances, filing categories, an accounts
+department winning arguments. Not menace. Menace is what the player supplies.
+
 Rule 5: genuinely capable, not shambling.
 
 - **Seuche** — fungal. Slow, numerous, spatial pressure. Cordyceps-shaped, no
