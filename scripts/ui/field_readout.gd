@@ -59,14 +59,46 @@ static func band(attenuation: float) -> Dictionary:
 	return BANDS[BANDS.size() - 1]
 
 
+## How badly the form understates at a full meter. The coefficient of the
+## quadratic below; see displayed_percent().
+const OPTIMISM := 0.38
+
+
 ## What the form prints where a number ought to go.
 ##
 ## Deliberately NOT the true percentage. The form reports against a ceiling it
 ## calls "rated capacity", and rated capacity is not 100% of anything -- it is
-## the figure the requisition was approved against. An agent at 88% true
-## attenuation reads as 62% of rated, which is a fine number to put in a box.
+## the figure the requisition was approved against.
+##
+## THE SHAPE OF THE LIE MATTERS MORE THAN ITS SIZE.
+##
+## A form that understates by a constant proportion is a solvable offset: the
+## player learns to multiply by 1.4 and the device stops working. Worse, it is
+## untrue to how institutions actually fail -- self-protection is not uniform,
+## it is at its least honest at the moment of greatest liability.
+##
+## So the understatement is quadratic in the true value:
+##
+##     shown = truth - OPTIMISM * truth^2
+##
+##   true   shown   gap
+##   0.10    9.6%   0.4 pts   nearly honest; nothing is at stake yet
+##   0.35   30.3%   4.7 pts   still broadly candid
+##   0.75   53.6%  21.4 pts   the instability threshold, badly misreported
+##   1.00   62.0%  38.0 pts   maximum liability, maximum optimism
+##
+## The form is most wrong exactly where the player most needs to stop reading
+## it and start reading the world, which is the whole design in one curve.
+##
+## Two properties this must preserve, both asserted in ReadoutProbe:
+##   - it never OVERSTATES (the gap is -OPTIMISM*t^2, which is never positive)
+##   - it still RISES with truth, so the player can read change at all. The
+##     derivative is 1 - 2*OPTIMISM*t, positive across 0..1 for OPTIMISM < 0.5.
+##     Raising OPTIMISM past 0.5 would make the bar start falling as the agent
+##     got worse, which is a different and much stupider lie.
 static func displayed_percent(attenuation: float) -> float:
-	return clampf(attenuation, 0.0, 1.0) * 70.0
+	var t := clampf(attenuation, 0.0, 1.0)
+	return (t - OPTIMISM * t * t) * 100.0
 
 
 ## The form never shows this at all. Present as a method so the omission is

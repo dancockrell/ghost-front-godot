@@ -176,6 +176,27 @@ what the world can see of you or how often blows miss.
 Camp Iron Bell already does not mention what repeated phasing does. The handler
 and the readout are the same liar.
 
+**The shape of the lie matters more than its size.** A form that understates by
+a constant proportion is a solvable offset — the player learns to multiply by
+1.4 and the device stops working. It is also untrue to how institutions fail:
+self-protection is not uniform, it is at its least honest at the moment of
+greatest liability. So the understatement is quadratic in the true value:
+
+| true | shown | off by |
+|---|---|---|
+| 10% | 9.6% | 0.4 pts — nothing is at stake yet |
+| 35% | 30.3% | 4.7 pts — still broadly candid |
+| **75%** | **53.6%** | **21.4 pts — the instability threshold** |
+| 100% | 62.0% | 38.0 pts — maximum liability, maximum optimism |
+
+The gap grows **25×** from the safe band to the critical one. The form is most
+wrong exactly where the player most needs to stop reading it and start reading
+the world.
+
+It must still *rise* with the truth, though, or it is useless rather than
+merely optimistic — a bar that stalls as the agent worsens is a different and
+much stupider lie. Asserted across 101 points.
+
 > **THE FORM LIES. THE WORLD DOES NOT.**
 
 This is not optional and it is what keeps the design honest rather than merely

@@ -63,6 +63,38 @@ func _run() -> int:
 		FieldReadout.displayed_percent(1.0) < 95.0,
 		"%.0f%% of rated" % FieldReadout.displayed_percent(1.0))
 
+	# ---- 1b. THE SHAPE of the lie, not just its direction.
+	# An institution's self-protection is not uniform; it is least honest at
+	# the moment of greatest liability. So the gap must GROW, and grow fastest
+	# where it matters -- otherwise the form is a solvable constant offset and
+	# the player just learns to add fifteen.
+	print("\n-- and it is least honest where the stakes are highest --")
+	var gap_safe: float = 0.20 - FieldReadout.displayed_percent(0.20) / 100.0
+	var gap_edge: float = 0.75 - FieldReadout.displayed_percent(0.75) / 100.0
+	var gap_max: float = 1.00 - FieldReadout.displayed_percent(1.00) / 100.0
+	_say("nearly honest while nothing is at stake", gap_safe < 0.03,
+		"at 20%% true, off by %.1f points" % (gap_safe * 100.0))
+	_say("badly optimistic at the instability threshold", gap_edge > 0.15,
+		"at 75%% true, off by %.1f points" % (gap_edge * 100.0))
+	_say("worst at maximum liability", gap_max > gap_edge and gap_edge > gap_safe,
+		"%.1f -> %.1f -> %.1f points" % [gap_safe * 100.0, gap_edge * 100.0, gap_max * 100.0])
+	_say("the lie is not a solvable constant offset",
+		(gap_max / maxf(gap_safe, 0.0001)) > 5.0,
+		"gap grows %.0fx from safe to critical" % (gap_max / maxf(gap_safe, 0.0001)))
+
+	# The player must still be able to read CHANGE, or the form is useless
+	# rather than merely optimistic -- a bar that stalls or falls as the agent
+	# worsens is a different and much stupider lie.
+	var rising := true
+	var prev := -1.0
+	for i in range(101):
+		var v := FieldReadout.displayed_percent(float(i) / 100.0)
+		if v < prev - 0.0001:
+			rising = false
+		prev = v
+	_say("the displayed figure still rises with the truth", rising,
+		"monotonic across 101 points")
+
 	# ---- 2. the reassurance holds where it matters
 	print("\n-- and it stays reassuring past the point it should not --")
 	var b_mid := FieldReadout.band(0.60)
