@@ -27,6 +27,7 @@ var _player: Player
 var _spawn := Vector2(200, GROUND_Y - 140.0)
 var _solids: Array[Rect2] = []
 var _pits: Array[Rect2] = []
+var _anchors := PackedVector2Array()
 
 
 func _ready() -> void:
@@ -97,6 +98,18 @@ func _build() -> void:
 	# 7. the run-out.
 	_add_solid(Rect2(Vector2(x, top_y), Vector2(jd * 1.5, 600)))
 
+	# CURRENT anchors, over the two widest gaps and along the corridor.
+	# Deliberately placed where a jump ALREADY works: the arc should be a
+	# faster, riskier alternative to a committed jump, never the only way
+	# across. A traversal ability that gates progress stops being expressive
+	# and becomes a key.
+	for p in _pits:
+		if p.size.x > jd * 0.7:
+			_anchors.append(Vector2(p.position.x + p.size.x * 0.5,
+				p.position.y - jh * 1.25))
+	_anchors.append(Vector2(x - jd * 0.7, top_y - jh * 0.55))
+	_anchors.append(Vector2(x + jd * 0.4, top_y - jh * 0.9))
+
 
 func _spawn_player() -> void:
 	_player = Player.new()
@@ -116,6 +129,7 @@ func _spawn_player() -> void:
 	body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_player.add_child(body)
 	_player.global_position = _spawn
+	_player.anchors = _anchors
 	add_child(_player)
 
 
@@ -160,12 +174,23 @@ func _physics_process(_delta: float) -> void:
 				lab = c.get_node_or_null("Debug") as Label
 				break
 	if lab:
-		lab.text = "%s\nvel %6.0f,%6.0f   floor:%s  coyote %.3f  buffer %.3f  airjumps %d" % [
+		var att: float = _player.phase.attenuation
+		var filled := int(att * 20.0)
+		var bar := "#".repeat(filled) + ".".repeat(20 - filled)
+		lab.text = ("%s\nvel %6.0f,%6.0f  floor:%s  airjumps %d"
+			+ "\n[Q] CHRONO %4.2fs    [SHIFT] PHASE %s    [E] CURRENT %s"
+			+ "\nATTENUATION [%s] %3.0f%%    perceived %3.0f%%    evasion %3.0f%%%s") % [
 			profile.describe(),
 			_player.velocity.x, _player.velocity.y,
 			"Y" if _player.is_on_floor() else "n",
-			_player.coyote_remaining(), _player.buffer_remaining(),
-			_player.air_jumps_remaining()]
+			_player.air_jumps_remaining(),
+			_player.chrono.available(),
+			"**" if _player.phase.is_dashing() else "ok",
+			"ON" if _player.arc.is_attached() else "--",
+			bar, att * 100.0,
+			_player.phase.perception_scale() * 100.0,
+			_player.phase.evasion_chance() * 100.0,
+			"    <<UNSTABLE>>" if _player.phase.is_unstable() else ""]
 	queue_redraw()
 
 
@@ -180,3 +205,11 @@ func _draw() -> void:
 	for p in _pits:
 		draw_rect(Rect2(p.position, Vector2(p.size.x, 5.0)),
 			Color(0.55, 0.22, 0.22, 0.55), true)
+	# conductive anchors
+	for a in _anchors:
+		draw_circle(a, 17.0, Color(0.35, 0.72, 0.95, 0.30))
+		draw_circle(a, 7.0, Color(0.75, 0.93, 1.0))
+	# the live arc
+	if _player != null and _player.arc != null and _player.arc.is_attached():
+		draw_line(_player.global_position, _player.arc.anchor(),
+			Color(0.75, 0.93, 1.0), 3.0)
