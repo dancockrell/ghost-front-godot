@@ -33,10 +33,11 @@ extends Resource
 ## being strict.
 
 @export_group("The two that matter")
-## How high a full jump reaches, in pixels. The character is ~200px tall, so
-## 320 is a jump of about one and a half body heights -- deliberately grounded.
-## This is a horror platformer; he should feel like he has a body.
-@export var jump_height: float = 320.0
+## How high a full jump reaches, in pixels. The character is 150px tall, so
+## 210 is about 1.4 body heights -- deliberately grounded, and it keeps jump
+## DISTANCE at ~1.8x jump HEIGHT, which is the ratio real platformers use.
+## Jumping higher than you travel reads as moon-jumping. He has a body.
+@export var jump_height: float = 210.0
 ## Seconds from leaving the floor to the top of the arc. The weight dial.
 ## 0.38 is inherited from the original -- the one number 48 rounds of tuning
 ## actually established, and worth keeping when the implementation is not.
@@ -53,7 +54,7 @@ extends Resource
 
 @export_group("Running")
 ## Top horizontal speed, px/s.
-@export var max_speed: float = 420.0
+@export var max_speed: float = 540.0
 ## Time in seconds to reach top speed from a standstill, on the ground.
 @export var ground_accel_time: float = 0.10
 ## Time in seconds to stop from top speed, on the ground.
