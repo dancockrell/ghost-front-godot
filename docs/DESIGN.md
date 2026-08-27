@@ -7,6 +7,36 @@ disagree, the bible wins.
 
 ---
 
+## 0. The keystone — the question is worth more than the answer
+
+Bible §00, and everything below is downstream of it.
+
+> **Dan:** *"we will explore the horrors of the war through horror and through
+> douglas adams, because the question is worth more than the answer."* And:
+> **no preaching.**
+
+It is Adams's actual joke and it is why the universe is called Project 42. The
+Answer is 42, nobody knows the Question, an answer without its question
+explains nothing, and the comedy is that the number is useless and everybody
+wanted it anyway. **A project named for that number is named for the
+proposition that the asking is the valuable part.**
+
+**The test, applied to every requisition, every handler line, every room:**
+
+> Does it hand down a verdict, or leave a question the player carries out of
+> the room? **If it concludes, cut it. If it asks, keep it.**
+
+This is why §7 has no counter, and it is worth understanding rather than just
+obeying: **a counter would be an answer.** The absence of one is the question.
+Same for the player never choosing — the form was initialled before deployment,
+and finding that out is the point.
+
+The things ruled "never resolve this" are not gaps to be filled in later by a
+tidier-minded contributor. **They are the method.** Whether the criteria are a
+real constraint or a convenient excuse; where attenuation bottoms out; what the
+watcher wants. None of those get an answer, and a late-development impulse to
+explain them is the failure mode this section exists to prevent.
+
 ## 1. The pitch
 
 A 2D action platformer. You are a Project 42 retrieval agent, sent into the
@@ -129,6 +159,18 @@ that is devastating.
 Per rule 10, anything funny about the wrong thing is cut. The comedy is aimed
 at the bureaucracy, never at what the bureaucracy processes.
 
+**The handler and the gap.** The handler may hold period-accurate contempt for
+the enemy — a 1944 War Department voice did. **The game does not endorse it,
+and the player must be able to feel the gap** between what the handler is
+saying and what the player is looking at. Do not give a Project 42 voice a
+slur-adjacent line and let it stand unanswered; equally, do not sand the period
+smooth. That gap is the §00 question delivered without a word of commentary,
+which is the only way it is allowed to be delivered.
+
+**If a line or image would read worse coming from a 1943 US War Department
+poster, it is the wrong one.** That risk is live rather than theoretical here,
+because the art direction deliberately works in propaganda idiom.
+
 ## 7. The people you do not extract
 
 Ruled, with two **binding** additions beyond what was proposed.
@@ -158,6 +200,15 @@ Rule 5: genuinely capable, not shambling.
 
 Everything telegraphs. The old build got that right and it is worth keeping: a
 tell you can read is what separates a fair death from a cheap one.
+
+**Insignia: the Iron Cross is the only mark the Empire gets.** Singular and
+exclusive per rule 8 — do not design additional imperial marks and do not let a
+generator supply one.
+
+**Hyakki Yakō are not the opposition here, but if they ever appear:** they are
+**not in control of themselves.** Dispossession, done to them. It reads as
+**stillness, never frenzy** — and that guard is hard, because frenzy sits one
+careless step from the caricature Allied propaganda ran industrially.
 
 Enemies read `phase.perception_scale()` for detection range and
 `phase.hit_evaded()` for whether a hit lands, so the seduction is wired
