@@ -45,6 +45,26 @@ var cooldown: float = 0.28
 var attenuation_enabled: bool = true
 ## Attenuation added per dash, as a fraction of the meter.
 var cost: float = 0.22
+
+## Multiplier on that cost, set by the level. Used for the escort leg.
+##
+## THE ESCORT RULE, and it is flagged rather than asserted because it is an
+## inference from canon rather than canon itself. Established: phasing
+## attenuates the person doing it. NOT established: what happens when the agent
+## phases while carrying someone. Two defensible readings --
+##
+##   (a) the subject is dragged through the same slippage, so the cost doubles
+##       and the player is spending someone else's coherence to save their own
+##   (b) the subject is simply not phased, and the ability is unavailable
+##
+## (a) is implemented, because it preserves the choice and asks a question,
+## where (b) hands down a verdict by removing the option. It also puts the
+## player's best defensive tool behind a cost exactly when they most want it,
+## which is the tension the extraction leg is for.
+##
+## Submitted to the lore thread. If (b) is ruled, set this very high or gate
+## try_dash() instead; nothing else in the design depends on which way it goes.
+var cost_multiplier: float = 1.0
 ## Fraction of the meter recovered per second while not phasing.
 var recovery: float = 0.16
 ## Above this, involuntary phasing begins.
@@ -132,7 +152,7 @@ func try_dash(direction: Vector2) -> bool:
 	_time_left = dash_time
 	_cd_left = dash_time + cooldown
 	if attenuation_enabled:
-		attenuation = clampf(attenuation + cost, 0.0, 1.0)
+		attenuation = clampf(attenuation + cost * cost_multiplier, 0.0, 1.0)
 	return true
 
 
