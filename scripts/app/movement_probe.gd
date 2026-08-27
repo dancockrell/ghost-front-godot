@@ -120,6 +120,26 @@ func _run() -> void:
 	print("profile: ", _profile.describe())
 	print("physics tick: %.4fs\n" % TICK)
 
+	# ---- 0. THE INPUT MAP, checked first because everything else in every
+	# probe on this project bypasses it.
+	#
+	# This exists because all 118 checks passed green while three abilities
+	# were unbindable in the actual game: the action definitions had been
+	# appended AFTER the [rendering] header in project.godot, so Godot parsed
+	# them as rendering settings and the InputMap never saw them. Probes drive
+	# the player by writing intent fields directly, which is right for testing
+	# movement and is exactly why none of them noticed.
+	#
+	# A test suite that cannot see the difference between a playable game and
+	# an unplayable one is worth asserting against.
+	print("-- the input map (nothing else in this suite touches it) --")
+	for action in ["move_left", "move_right", "jump", "crouch",
+			"phase", "arc", "rewind"]:
+		var known := InputMap.has_action(action)
+		var bound := known and InputMap.action_get_events(action).size() > 0
+		_say("action '%s' exists and has a binding" % action, bound,
+			"" if bound else ("NOT IN MAP" if not known else "no events bound"))
+
 	_build_world()
 	await _settle(20)
 
