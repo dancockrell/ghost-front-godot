@@ -23,8 +23,30 @@ extends Resource
 ## Which branch of the Reichsamt. Canon: Kadaver (surgical), Bestiarium
 ## (grafts and powered frames), Seuche (fungal).
 @export_enum("kadaver", "bestiarium", "seuche") var branch: String = "seuche"
-## Working label only. Real names are the lore thread's to grant.
-@export var codename: String = "UNNAMED"
+
+## THE TWO-NAME RULE (WORLD-BESTIARY.md §1), and it is structural rather than
+## flavour, so it is two fields rather than one string.
+##
+## `designation` is what the Office calls it: a Muster number inside a
+## procedure, on a form, in the estimates. THE OFFICE DOES NOT NAME MONSTERS,
+## IT NUMBERS PRODUCTS. Nothing it makes was ever given a frightening name by
+## the people who made it -- to them it is late, or over budget, or performing
+## to projection.
+##
+## `troop_name` is what Allied soldiers coined, fast, for a smell or a sound or
+## a joke. Short, ugly, English.
+##
+## Where possible the troop name is ACCIDENTALLY TRUE, and that is the best
+## thing in the bestiary. "Patients" is the worked example: the troops mean it
+## as a joke about how slowly the thing moves, and the Office means it because
+## the thing came out of a surgical theatre and that is what the form says.
+## Two meanings on one word and neither side knows the other uses it.
+##
+## Both names must be reachable in play or the joke is inert -- the Office one
+## through found paperwork, the troop one through the handler. A player who
+## only ever hears one has been given a codeword.
+@export var designation: String = ""
+@export var troop_name: String = ""
 
 @export_group("Body")
 @export var max_health: float = 100.0
@@ -56,6 +78,37 @@ extends Resource
 @export var recover: float = 0.45
 @export var damage: float = 20.0
 
+@export_group("Tells")
+## THE BREAD SMELL, and the reason it is a field rather than a texture choice.
+##
+## Muster 4 ("bakers") announce themselves by smell -- warm, yeasty, entirely
+## wrong -- and the men learned to read it. Muster 6 ("the quiet ones") are the
+## same procedure late-stage, and THEY DO NOT SMELL OF BREAD. That is how you
+## know it is a six and not a four, it was learned the hard way, and it is in
+## no manual.
+##
+## So the ABSENCE of a tell is a second enemy for almost no work, and it only
+## functions if the two are otherwise hard to tell apart. EnemyProbe asserts
+## that similarity deliberately: if a Muster 6 were obviously different in
+## other ways, the missing tell would carry nothing.
+@export var has_proximity_tell: bool = false
+## Radius at which the tell becomes readable, px.
+@export var tell_radius: float = 260.0
+
+## THE WHISTLE. Baureihe 7 do not hunt, they ANSWER -- troops worked that out
+## in the field before intelligence did, and somewhere behind them a man is
+## blowing. The horror is not the thing coming at you, it is that it was sent.
+##
+## Mechanically this is the best tell in the game and it is free tension: the
+## whistle fires BEFORE the unit commits and comes from off-screen, so the
+## warning arrives before the enemy is even visible.
+##
+## HARD WRITING RULE, carried into code so it cannot be lost: NEVER SHOW THE
+## HANDLER. There is no handler entity, no spawn point, no silhouette. A
+## whistle with nobody visible behind it is the whole faction.
+@export var answers_a_whistle: bool = false
+@export var whistle_lead: float = 0.9
+
 @export_group("Movement style")
 ## Seuche shamble, Bestiarium leap, Kadaver advance. Affects how it closes.
 @export var can_leap: bool = false
@@ -74,7 +127,9 @@ extends Resource
 static func seuche() -> EnemyProfile:
 	var p := EnemyProfile.new()
 	p.branch = "seuche"
-	p.codename = "SEUCHE-A"
+	p.designation = "Verfahren Seuche, Muster 4"
+	p.troop_name = "bakers"
+	p.has_proximity_tell = true
 	p.max_health = 60.0
 	p.move_speed = 95.0
 	p.mass_knockback = 1.4
@@ -94,7 +149,9 @@ static func seuche() -> EnemyProfile:
 static func bestiarium() -> EnemyProfile:
 	var p := EnemyProfile.new()
 	p.branch = "bestiarium"
-	p.codename = "BESTIARIUM-A"
+	p.designation = "Baureihe 7"
+	p.troop_name = "whistlers"
+	p.answers_a_whistle = true
 	p.max_health = 90.0
 	p.move_speed = 300.0
 	p.mass_knockback = 1.0
@@ -117,7 +174,8 @@ static func bestiarium() -> EnemyProfile:
 static func kadaver() -> EnemyProfile:
 	var p := EnemyProfile.new()
 	p.branch = "kadaver"
-	p.codename = "KADAVER-A"
+	p.designation = "Muster 12"
+	p.troop_name = "patients"
 	p.max_health = 220.0
 	p.move_speed = 105.0
 	p.mass_knockback = 0.35     # heavy: it barely notices being hit
@@ -132,3 +190,87 @@ static func kadaver() -> EnemyProfile:
 	p.recover = 0.75            # and punish it for a long time afterwards
 	p.damage = 38.0
 	return p
+
+
+## MUSTER 6 -- "the quiet ones". Late-stage Seuche, fully driven, no reflex
+## left that belongs to the host.
+##
+## Mechanically almost a Muster 4, and that is the entire design: the ONLY
+## reliable difference is that it does not smell of bread. A player who has
+## learned to read the tell walks into a room, reads nothing, and relaxes.
+##
+## Slightly faster and slightly stronger, but deliberately close enough to be
+## mistaken for a four at a glance -- EnemyProbe asserts that closeness,
+## because if a six were obviously different the missing tell would carry
+## nothing and this would just be a reskin.
+static func muster_6() -> EnemyProfile:
+	var p := EnemyProfile.new()
+	p.branch = "seuche"
+	p.designation = "Verfahren Seuche, Muster 6"
+	p.troop_name = "the quiet ones"
+	p.has_proximity_tell = false      # <- the whole unit, in one false
+	p.max_health = 74.0
+	p.move_speed = 118.0
+	p.mass_knockback = 1.25
+	p.sight_range = 470.0
+	p.sight_cone = 1.4
+	p.notice_time = 0.75
+	p.patience = 4.4
+	p.forget_rate = 0.2
+	p.attack_range = 82.0
+	p.windup = 0.44
+	p.recover = 0.46
+	p.damage = 17.0
+	return p
+
+
+## GESTELL 4 -- "walkers", and this one is a joke and should be played as one.
+##
+## The exoframes do not work well. Heavy, slow, they fail in cold, and a man
+## inside cannot get out unassisted. Werk Nachtigall keeps funding them because
+## a decade of estimates purchased this, and admitting it walks worse than a
+## man would require somebody to write that down.
+##
+## §0 says if every beat is solemn we have failed. A walker stuck with a man
+## inside it who cannot get out, while the war happens elsewhere, is the
+## register exactly -- and the man cannot get out.
+##
+## The slowest thing in the roster and the longest telegraph in the game. It
+## is not a threat, it is an obstacle with an occupant, and it satisfies the
+## no-unit-outruns-the-player rule without trying.
+static func gestell_4() -> EnemyProfile:
+	var p := EnemyProfile.new()
+	p.branch = "bestiarium"
+	p.designation = "Gestell 4"
+	p.troop_name = "walkers"
+	p.max_health = 260.0
+	p.move_speed = 62.0               # slower than a walking man
+	p.mass_knockback = 0.3
+	p.sight_range = 400.0
+	p.sight_cone = 0.45               # it can barely turn its head
+	p.notice_time = 1.1
+	p.patience = 2.0
+	p.forget_rate = 0.6
+	p.attack_range = 120.0
+	p.windup = 1.15                   # the longest tell in the game
+	p.strike = 0.22
+	p.recover = 0.95
+	p.damage = 30.0
+	return p
+
+
+## Everything, for tests and for the bestiary screen.
+static func roster() -> Array[EnemyProfile]:
+	var a: Array[EnemyProfile] = []
+	a.append(seuche())
+	a.append(muster_6())
+	a.append(bestiarium())
+	a.append(gestell_4())
+	a.append(kadaver())
+	return a
+
+
+## "Muster 12 (patients)". Used by found paperwork and by the handler
+## respectively; both halves must be reachable in play or the joke is inert.
+func full_name() -> String:
+	return "%s (%s)" % [designation, troop_name]

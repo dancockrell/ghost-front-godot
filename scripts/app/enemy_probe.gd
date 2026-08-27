@@ -114,11 +114,10 @@ func _run() -> int:
 
 	# ================= THE ATTACK CYCLE =================
 	print("\n-- every attack telegraphs, and the tell cannot be cancelled --")
-	for maker in [EnemyProfile.seuche, EnemyProfile.bestiarium, EnemyProfile.kadaver]:
-		var p: EnemyProfile = maker.call()
-		_say("%s telegraphs before striking" % p.codename,
-			p.windup > 0.2, "windup=%.2fs" % p.windup)
-		_say("%s leaves a punish window" % p.codename,
+	for p in EnemyProfile.roster():
+		_say("%s telegraphs before striking" % p.troop_name,
+			p.windup > 0.2, "%s  windup=%.2fs" % [p.designation, p.windup])
+		_say("%s leaves a punish window" % p.troop_name,
 			p.recover > 0.25, "recover=%.2fs" % p.recover)
 
 	print("\n-- the archetypes are actually different --")
@@ -139,6 +138,76 @@ func _run() -> int:
 		"%.0f hp, %.0f dmg" % [s.max_health, s.damage])
 	_say("nobody is elegant: no unit outruns the player",
 		be.move_speed < 540.0, "fastest Werk %.0f vs player 540" % be.move_speed)
+
+	print("
+-- the two-name rule (WORLD-BESTIARY §1) --")
+	for p in EnemyProfile.roster():
+		_say("%s has both names" % p.troop_name,
+			p.designation != "" and p.troop_name != "",
+			p.full_name())
+	var office_names := {}
+	var troop_names := {}
+	for p in EnemyProfile.roster():
+		office_names[p.designation] = true
+		troop_names[p.troop_name] = true
+	_say("no two units share a designation",
+		office_names.size() == EnemyProfile.roster().size(),
+		"%d designations for %d units" % [office_names.size(), EnemyProfile.roster().size()])
+	_say("no two units share a troop name",
+		troop_names.size() == EnemyProfile.roster().size(),
+		"%d troop names" % troop_names.size())
+
+	# "patients" is accidentally true: the troops mean it as a joke about how
+	# slowly the thing moves. Assert the joke is CONFIRMED BY PLAY -- if a
+	# Muster 12 were quick, the name would be a codeword rather than an
+	# observation, and the double meaning would carry nothing.
+	var pat := EnemyProfile.kadaver()
+	var fastest := 0.0
+	for p in EnemyProfile.roster():
+		fastest = maxf(fastest, p.move_speed)
+	_say("'patients' is accidentally true: they really are slow",
+		pat.move_speed < fastest * 0.45,
+		"%.0f px/s against the roster's fastest %.0f" % [pat.move_speed, fastest])
+	_say("...and readable from across a room, as the name implies",
+		pat.windup >= 0.8, "windup %.2fs" % pat.windup)
+
+	print("
+-- the quiet ones: the ABSENCE of a tell is the tell --")
+	var m4 := EnemyProfile.seuche()
+	var m6 := EnemyProfile.muster_6()
+	_say("a Muster 4 announces itself", m4.has_proximity_tell,
+		"tell radius %.0fpx" % m4.tell_radius)
+	_say("a Muster 6 does NOT", not m6.has_proximity_tell,
+		"no bread smell")
+	# The load-bearing half: they must be close enough to be mistaken for one
+	# another, or the missing tell carries nothing and this is just a reskin.
+	var close := absf(m6.move_speed - m4.move_speed) / m4.move_speed < 0.35 		and absf(m6.max_health - m4.max_health) / m4.max_health < 0.35 		and absf(m6.windup - m4.windup) < 0.15 		and m6.branch == m4.branch
+	_say("...and they are otherwise close enough to be confused", close,
+		"spd %.0f/%.0f  hp %.0f/%.0f  windup %.2f/%.2f" % [
+			m4.move_speed, m6.move_speed, m4.max_health, m6.max_health,
+			m4.windup, m6.windup])
+
+	print("
+-- whistlers answer a whistle, and the handler is never shown --")
+	var w := EnemyProfile.bestiarium()
+	_say("Baureihe 7 answers a whistle", w.answers_a_whistle)
+	_say("the whistle leads the commit, so warning precedes sight",
+		w.whistle_lead > w.windup,
+		"lead %.2fs vs windup %.2fs" % [w.whistle_lead, w.windup])
+	var handler_shown := false
+	for p in EnemyProfile.roster():
+		if p.troop_name.to_lower().contains("handler") 				or p.designation.to_lower().contains("handler"):
+			handler_shown = true
+	_say("there is no handler unit anywhere in the roster", not handler_shown,
+		"a whistle with nobody behind it is the whole faction")
+
+	print("
+-- walkers are a joke and the numbers agree --")
+	var g := EnemyProfile.gestell_4()
+	_say("a walker is slower than a walking man", g.move_speed < 90.0,
+		"%.0f px/s" % g.move_speed)
+	_say("and has the longest tell in the game",
+		g.windup >= 1.0, "windup %.2fs" % g.windup)
 
 	# ================= A LIVE BODY =================
 	print("\n-- a real body runs the cycle in order --")
