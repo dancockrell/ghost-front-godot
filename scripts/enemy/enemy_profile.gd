@@ -264,6 +264,7 @@ static func roster() -> Array[EnemyProfile]:
 	var a: Array[EnemyProfile] = []
 	a.append(seuche())
 	a.append(muster_6())
+	a.append(muster_3())
 	a.append(bestiarium())
 	a.append(gestell_4())
 	a.append(kadaver())
@@ -274,3 +275,38 @@ static func roster() -> Array[EnemyProfile]:
 ## respectively; both halves must be reachable in play or the joke is inert.
 func full_name() -> String:
 	return "%s (%s)" % [designation, troop_name]
+
+
+## MUSTER 3 -- "the litter". Pesthund stock: the Seuche-fed kennel line.
+##
+## Improves as the kennel is consumed, because the kennel is fed itself. The
+## cost variance is favourable and Accounts has noted it approvingly.
+##
+## Troops do not have a good name for these and it shows. "The litter" is what
+## stuck, and it is said flatly, without a joke in it.
+##
+## THE FLATNESS IS NOT SELF-DELIVERING and that took an argument to establish:
+## a player cannot perceive the absence of a joke they never heard. The
+## handler carries it instead -- he has a light line for every other unit and
+## for this one he does not, and the player hears him not have one. See
+## HandlerVoice.LITTER_DESIGNATION.
+static func muster_3() -> EnemyProfile:
+	var p := EnemyProfile.new()
+	p.branch = "bestiarium"
+	p.designation = "Muster 3"
+	p.troop_name = "the litter"
+	p.max_health = 70.0
+	p.move_speed = 235.0
+	p.mass_knockback = 1.1
+	p.sight_range = 610.0
+	p.sight_cone = 1.0
+	p.notice_time = 0.4
+	p.patience = 2.6
+	p.forget_rate = 0.55
+	p.attack_range = 92.0
+	p.windup = 0.38
+	p.strike = 0.13
+	p.recover = 0.4
+	p.damage = 16.0
+	p.can_leap = true
+	return p
