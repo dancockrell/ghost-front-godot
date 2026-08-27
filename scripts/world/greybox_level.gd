@@ -22,6 +22,9 @@ const GROUND_Y := 900.0
 const PLATFORM_H := 48.0
 
 @export var profile: MovementProfile
+## Development overlay showing the TRUE numbers beside the form's version.
+## Off by default: the point of the form is that the player does not get this.
+@export var show_truth: bool = false
 
 var _player: Player
 var _spawn := Vector2(200, GROUND_Y - 140.0)
@@ -155,10 +158,15 @@ func _add_hud() -> void:
 	var lab := Label.new()
 	lab.name = "Debug"
 	lab.position = Vector2(18, 14)
-	lab.add_theme_font_size_override("font_size", 18)
+	lab.add_theme_font_size_override("font_size", 17)
 	lab.add_theme_color_override("font_color", Color(0.85, 0.88, 0.9))
 	layer.add_child(lab)
 	add_child(layer)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and event.keycode == KEY_F1:
+		show_truth = not show_truth
 
 
 func _physics_process(_delta: float) -> void:
@@ -174,23 +182,23 @@ func _physics_process(_delta: float) -> void:
 				lab = c.get_node_or_null("Debug") as Label
 				break
 	if lab:
-		var att: float = _player.phase.attenuation
-		var filled := int(att * 20.0)
-		var bar := "#".repeat(filled) + ".".repeat(20 - filled)
-		lab.text = ("%s\nvel %6.0f,%6.0f  floor:%s  airjumps %d"
-			+ "\n[Q] CHRONO %4.2fs    [SHIFT] PHASE %s    [E] CURRENT %s"
-			+ "\nATTENUATION [%s] %3.0f%%    perceived %3.0f%%    evasion %3.0f%%%s") % [
-			profile.describe(),
-			_player.velocity.x, _player.velocity.y,
-			"Y" if _player.is_on_floor() else "n",
-			_player.air_jumps_remaining(),
-			_player.chrono.available(),
-			"**" if _player.phase.is_dashing() else "ok",
-			"ON" if _player.arc.is_attached() else "--",
-			bar, att * 100.0,
-			_player.phase.perception_scale() * 100.0,
-			_player.phase.evasion_chance() * 100.0,
-			"    <<UNSTABLE>>" if _player.phase.is_unstable() else ""]
+		# What the agent sees is the FORM, not the world. The form understates
+		# and omits; the truth is available from the world instead -- enemies
+		# losing track of you, and the floor becoming unreliable.
+		var ph := _player.phase
+		lab.text = FieldReadout.render(
+			ph.attenuation, _player.chrono.available(),
+			ph.is_dashing(), _player.arc.is_attached())
+		# Development only, and clearly marked as such. Toggle with F1.
+		if show_truth:
+			lab.text += "\n\n" + FieldReadout.render_truth(
+				ph.attenuation, ph.perception_scale(), ph.evasion_chance())
+			lab.text += "\n[dev] %s\n[dev] vel %.0f,%.0f floor:%s airjumps %d%s" % [
+				profile.describe(),
+				_player.velocity.x, _player.velocity.y,
+				"Y" if _player.is_on_floor() else "n",
+				_player.air_jumps_remaining(),
+				"  UNSTABLE" if ph.is_unstable() else ""]
 	queue_redraw()
 
 

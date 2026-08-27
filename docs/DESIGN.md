@@ -158,6 +158,44 @@ That is worth stating plainly, because it is the difference between a UI theme
 and a load-bearing one. The HUD is diegetic. It is allowed to be wrong about
 things — cheerfully, in a serif face, with a form number.
 
+**Now canon, and generalised past the HUD:** if the illustration is a faction's
+self-portrait, so is the frame, the interface, the menus, and the way a stat is
+*labelled*. **The player is never shown the world directly — only ever a
+document about it, written by someone with a reason.** Understating a cost,
+omitting a consequence, and calling a condition code something reassuring are
+all explicitly permitted. That is §00 carried by the furniture.
+
+### W.D. FORM 42-C, and the constraint that keeps it fair
+
+The readout is built as a liar. At **80% true attenuation** — past the point
+the floor starts vanishing — it reports *"3-C SATISFACTORY. Minor coherence
+variance. No action indicated."* It reports coherence as a percentage of
+"rated capacity" rather than of anything real, and it has **no box at all** for
+what the world can see of you or how often blows miss.
+
+Camp Iron Bell already does not mention what repeated phasing does. The handler
+and the readout are the same liar.
+
+> **THE FORM LIES. THE WORLD DOES NOT.**
+
+This is not optional and it is what keeps the design honest rather than merely
+clever. A game whose only feedback channel is dishonest is not thematic, it is
+broken — a player cannot learn a system that misreports itself with no second
+opinion. So the truth is always available, just never from the form: enemies
+visibly lose track of you, the floor stops being reliable, and the agent's own
+body distorts on the real value.
+
+**The player learns to read the world instead of the readout, and that is the
+story delivered by the furniture rather than by dialogue** — a player who works
+out that the form is optimistic has been handed a question, not a verdict.
+
+`ReadoutProbe` guards both halves: that the form only ever *understates*, and —
+the load-bearing one — that **nothing in the world reads the form**. Enemy
+sight and combat resolution consult the true value. If either were ever wired
+to the readout, attenuation would become cosmetic and the player's central
+decision would quietly stop mattering, with no symptom at all, because the HUD
+would still animate.
+
 ## 6. Tone — Project 42 is the funny faction
 
 The bible is explicit that this faction carries the comedy, and that Fallout's
