@@ -30,12 +30,39 @@ var _banner_t := 0.0
 var _bark := ""
 var _bark_t := 0.0
 var _barked_at := {}
+var _feel: GameFeel
+var _whistle: Whistle
+var _fx_layer: CanvasLayer
+var _fx_rect: ColorRect
+var _fx_mat: ShaderMaterial
+var _whistled := {}
 
 
 func _ready() -> void:
 	if profile == null:
 		profile = MovementProfile.new()
+	_feel = GameFeel.new()
+	_whistle = Whistle.new()
+	add_child(_whistle)          # NOT _own(): survives a level reload
+	_build_fx_layer()
 	_load_level(level_index)
+
+
+## The post-process pass. Full-screen quad on its own CanvasLayer above the
+## world and below the HUD -- the form should not be distorted by the thing the
+## form is lying about.
+func _build_fx_layer() -> void:
+	_fx_layer = CanvasLayer.new()
+	_fx_layer.layer = 1
+	_fx_rect = ColorRect.new()
+	_fx_rect.anchor_right = 1.0
+	_fx_rect.anchor_bottom = 1.0
+	_fx_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_fx_mat = ShaderMaterial.new()
+	_fx_mat.shader = load("res://shaders/attenuation.gdshader")
+	_fx_rect.material = _fx_mat
+	_fx_layer.add_child(_fx_rect)
+	add_child(_fx_layer)         # NOT _own(): survives a level reload
 
 
 ## Everything this script spawns joins this group, and ONLY this group is
@@ -156,6 +183,7 @@ func _add_enemy(branch: String, at: Vector2) -> void:
 
 func _add_camera() -> void:
 	var cam := Camera2D.new()
+	cam.name = "Cam"          # looked up by name to apply shake offset
 	cam.zoom = Vector2(0.72, 0.72)
 	cam.position_smoothing_enabled = true
 	cam.position_smoothing_speed = 6.0
@@ -240,6 +268,18 @@ func _physics_process(delta: float) -> void:
 			_barked_at[e.profile.designation] = true
 			_say_bark(HandlerVoice.on_sighting(e.profile.designation), 4.5)
 
+		# THE WHISTLE. Fires as a whistler winds up, from its direction, with
+		# nobody visible behind it. The lead exceeds the wind-up, so the
+		# warning arrives before the thing does -- and in a corridor, before
+		# the thing is even visible.
+		if e.profile.answers_a_whistle and e.is_telegraphing() \
+				and not _whistled.has(e.get_instance_id()):
+			_whistled[e.get_instance_id()] = true
+			_whistle.aim_from(_player.global_position, e.global_position)
+			_whistle.blow()
+		if not e.is_telegraphing():
+			_whistled.erase(e.get_instance_id())
+
 		if e.is_striking():
 			var reach := e.global_position.distance_to(_player.global_position) \
 				<= e.profile.attack_range + 40.0
@@ -247,6 +287,17 @@ func _physics_process(delta: float) -> void:
 			if res.hit:
 				_banner = "HIT"
 				_banner_t = 0.6
+				# Shake scales with what hit you, on one shared scale rather
+				# than a number invented at each call site.
+				if e.profile.damage >= 30.0:
+					_feel.add_shake(GameFeel.SHAKE_HEAVY)
+				elif e.profile.damage >= 18.0:
+					_feel.add_shake(GameFeel.SHAKE_SOLID)
+				else:
+					_feel.add_shake(GameFeel.SHAKE_LIGHT)
+				# NO hit stop here, deliberately. Freezing the frame on damage
+				# TAKEN removes the controls at the moment the player most
+				# wants them. Hit stop is for hits the player LANDS.
 
 	mission.step(delta, anyone_sees)
 
@@ -269,6 +320,21 @@ func _physics_process(delta: float) -> void:
 
 	_banner_t = maxf(0.0, _banner_t - delta)
 	_bark_t = maxf(0.0, _bark_t - delta)
+
+	# THE HONEST CHANNEL. The shader reads the TRUE attenuation, never the
+	# form's version. The whole design collapses to cosmetic if this is ever
+	# wired to the readout -- and it would collapse silently, because the HUD
+	# and the distortion would both still animate.
+	if _fx_mat != null:
+		_fx_mat.set_shader_parameter("attenuation", _player.phase.attenuation)
+		_fx_mat.set_shader_parameter("unstable_at", _player.phase.unstable_at)
+		_fx_mat.set_shader_parameter("time_sec",
+			float(Time.get_ticks_msec()) / 1000.0)
+
+	var cam := _player.get_node_or_null("Cam") as Camera2D
+	if cam != null and _feel != null:
+		cam.offset = _feel.step(delta)
+
 	_update_hud()
 	queue_redraw()
 
