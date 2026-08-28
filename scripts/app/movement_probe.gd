@@ -134,7 +134,7 @@ func _run() -> void:
 	# an unplayable one is worth asserting against.
 	print("-- the input map (nothing else in this suite touches it) --")
 	for action in ["move_left", "move_right", "jump", "crouch",
-			"phase", "arc", "rewind"]:
+			"phase", "arc", "rewind", "fire", "weapon_next", "weapon_prev"]:
 		var known := InputMap.has_action(action)
 		var bound := known and InputMap.action_get_events(action).size() > 0
 		_say("action '%s' exists and has a binding" % action, bound,

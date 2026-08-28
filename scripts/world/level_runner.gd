@@ -36,12 +36,15 @@ var _fx_layer: CanvasLayer
 var _fx_rect: ColorRect
 var _fx_mat: ShaderMaterial
 var _whistled := {}
+var _weapons: WeaponSystem
+var _shots: Array = []          # live Projectile nodes
 
 
 func _ready() -> void:
 	if profile == null:
 		profile = MovementProfile.new()
 	_feel = GameFeel.new()
+	_weapons = WeaponSystem.new()
 	_whistle = Whistle.new()
 	add_child(_whistle)          # NOT _own(): survives a level reload
 	_build_fx_layer()
@@ -314,6 +317,7 @@ func _physics_process(delta: float) -> void:
 				# TAKEN removes the controls at the moment the player most
 				# wants them. Hit stop is for hits the player LANDS.
 
+	_step_weapons(delta)
 	mission.step(delta, anyone_sees)
 
 	# requisitions
@@ -354,6 +358,80 @@ func _physics_process(delta: float) -> void:
 	queue_redraw()
 
 
+## Firing, flight, and what a shot hits.
+##
+## Collision is done by distance here rather than by Area2D, deliberately: a
+## Mega Man shot needs a hitbox the player can LEARN, and a circle against a
+## circle is something they can predict. Physics areas bring layer masks,
+## frame-order surprises and tunnelling at speed, none of which is readable.
+func _step_weapons(delta: float) -> void:
+	if _weapons == null or _player == null:
+		return
+
+	var holding := Input.is_action_pressed("fire")
+	var pressed := Input.is_action_just_pressed("fire")
+	if Input.is_action_just_pressed("weapon_next"):
+		_weapons.cycle(1)
+		_say_bark("Switching to %s." % _weapons.current().issue_name, 2.0)
+	if Input.is_action_just_pressed("weapon_prev"):
+		_weapons.cycle(-1)
+		_say_bark("Switching to %s." % _weapons.current().issue_name, 2.0)
+
+	var order := _weapons.step(delta, holding, pressed)
+	if not order.is_empty():
+		_spawn_shot(order["spec"], bool(order.get("charged", false)))
+
+	# ---- advance and resolve
+	var still: Array = []
+	for s in _shots:
+		var proj: Projectile = s
+		if not is_instance_valid(proj):
+			continue
+		if not proj.step(delta):
+			_weapons.note_despawned(proj.spec.id)
+			proj.queue_free()
+			continue
+
+		var consumed := false
+		for e in _enemies:
+			if e.is_dead() or proj.already_hit(e):
+				continue
+			if not proj.hits(e.global_position, 30.0):
+				continue
+			proj.mark_hit(e)
+			e.take_damage(proj.damage, proj.global_position)
+			_feel.add_shake(proj.spec.shake)
+			# Hit stop ONLY on a hit the player LANDS. Never on damage taken.
+			if proj.spec.hit_stop > 0.0:
+				_feel.hit_stop(proj.spec.hit_stop)
+			if proj.pierce > 0:
+				proj.pierce -= 1
+			else:
+				consumed = true
+				break
+		if consumed:
+			_weapons.note_despawned(proj.spec.id)
+			proj.queue_free()
+			continue
+		still.append(proj)
+	_shots = still
+
+
+func _spawn_shot(spec: WeaponSpec, charged: bool) -> void:
+	var proj := Projectile.new()
+	var facing := 1.0
+	if _player.has_method("aim_vector"):
+		facing = signf(_player.aim_vector().x)
+	if facing == 0.0:
+		facing = 1.0
+	var muzzle := _player.global_position + Vector2(facing * 42.0, -12.0)
+	proj.setup(spec, muzzle, Vector2(facing, 0.0), charged)
+	_own(proj)
+	_shots.append(proj)
+	_weapons.note_spawned(spec.id)
+	_feel.add_shake(spec.shake)
+
+
 func _blocked(from: Vector2, to: Vector2) -> bool:
 	var q := PhysicsRayQueryParameters2D.create(from, to)
 	q.collide_with_areas = false
@@ -379,6 +457,12 @@ func _update_hud() -> void:
 	txt += FieldReadout.render(ph.attenuation, _player.chrono.available(),
 		ph.is_dashing(), _player.arc.is_attached())
 	txt += "\n  ITEM 6  TASKING .......................... %s" % mission.phase_name()
+	txt += "\n  ITEM 8  ISSUE, WEAPON .................... %s" % _weapons.readout()
+	var ch := _weapons.charge_fraction()
+	if ch > 0.0:
+		var pips := int(ch * 10.0)
+		txt += "\n          CHARGE [%s%s]%s" % ["=".repeat(pips),
+			" ".repeat(10 - pips), "  READY" if ch >= 1.0 else ""]
 	txt += "\n  ITEM 7  DOCUMENTS RECOVERED .............. %d of %d" % [
 		_read.size(), _doc_nodes.size()]
 	if mission.carrying:
