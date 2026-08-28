@@ -40,6 +40,11 @@ var when: String = ""
 ## Author's note on what this level is for. Kept with the level rather than in
 ## a separate design doc, because a doc that lives elsewhere goes stale.
 var intent: String = ""
+## Which Backdrop palette this level uses. ART-SPEC gives each faction its own
+## print stock, so the palette is a property of the LEVEL rather than a global
+## look -- walking from a deep retrieval into a Werk facility should change the
+## colour of the world, not just its geometry.
+var palette: String = "ardennes"
 var segments: Array = []
 
 
@@ -90,6 +95,10 @@ func subject(back_jd: float, up_jh: float = 0.5) -> LevelSpec:
 
 func note(text: String) -> LevelSpec:
 	intent = text
+	return self
+
+func look(palette_name: String) -> LevelSpec:
+	palette = palette_name
 	return self
 
 

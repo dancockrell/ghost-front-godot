@@ -31,6 +31,7 @@ extends RefCounted
 ## once before the game asks anything of them.
 static func quiet_sector() -> LevelSpec:
 	return LevelSpec.new("ch1", "THE QUIET SECTOR", "THE ARDENNES, DECEMBER 1944") \
+		.look("ardennes") \
 		.note("Teaches: run, jump, coyote, the shape of a gap. Threat is almost "
 			+ "absent on purpose -- the contrast is the point, and it is spent "
 			+ "in chapter 3.") \
@@ -61,6 +62,7 @@ static func quiet_sector() -> LevelSpec:
 ## can reach without spending some.
 static func careless_year() -> LevelSpec:
 	return LevelSpec.new("ch2", "THE CARELESS YEAR", "A YEAR THE RECORD IS THIN ABOUT") \
+		.look("elsewhere") \
 		.note("Teaches: phase, and attenuation as a resource you spend. No "
 			+ "opposition at all -- the meter should be learned in quiet.") \
 		.ground(1.8) \
@@ -88,6 +90,7 @@ static func careless_year() -> LevelSpec:
 ## asserts it never demands it by accident.
 static func collection_point() -> LevelSpec:
 	return LevelSpec.new("ch3", "THE COLLECTION POINT", "A WERK FACILITY, 1945") \
+		.look("werk") \
 		.note("Teaches: current/arc, and Phase as defence rather than movement. "
 			+ "First above-jump gap in the campaign, anchored. The register "
 			+ "changes here: this is the first place with paperwork in it.") \
@@ -126,6 +129,7 @@ static func collection_point() -> LevelSpec:
 ## survive a floor that was there a second ago.
 static func burning_stacks() -> LevelSpec:
 	return LevelSpec.new("ch4", "THE BURNING STACKS", "A FIRE, AND WHAT IT TOOK") \
+		.look("fire") \
 		.note("Set piece. All three verbs under pressure, no enemies -- the "
 			+ "building is the opposition. Chrono carries this level: the "
 			+ "rewind is how you survive a floor that was there a second ago.") \
@@ -153,6 +157,7 @@ static func burning_stacks() -> LevelSpec:
 ## and the floor going away is the price. Nobody tells the player that.
 static func bell_house() -> LevelSpec:
 	return LevelSpec.new("ch5", "THE BELL HOUSE", "ABT. GLOCKE CALIBRATION SITE") \
+		.look("werk") \
 		.note("The seduction level. Opposition is dense enough that full "
 			+ "presence is the hard way through, so the player discovers the "
 			+ "advantage themselves and pays for it themselves. Nobody says so.") \

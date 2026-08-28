@@ -106,6 +106,17 @@ func _load_level(idx: int) -> void:
 			% [_spec.id, ", ".join(_builder.problems())])
 		return
 
+	# The backdrop goes in first so it sits behind everything, and it is
+	# level-owned so a chapter change rebuilds it with that chapter's palette.
+	# Walking from a deep retrieval into a Werk facility should change the
+	# colour of the world, not just its geometry.
+	var back := Backdrop.new()
+	back.palette_name = _spec.palette
+	back.world_width = maxf(_builder.total_width, 4000.0)
+	back.horizon_y = LevelBuilder.GROUND_Y
+	back.seed_value = level_index * 7919 + 13
+	_own(back)
+
 	for r in _builder.solids:
 		var body := StaticBody2D.new()
 		var cs := CollisionShape2D.new()
@@ -195,6 +206,10 @@ func _add_camera() -> void:
 	cam.drag_bottom_margin = 0.2
 	_player.add_child(cam)
 	cam.make_current()
+	# the backdrop parallaxes against the camera, so it needs the reference
+	for c in get_tree().get_nodes_in_group(LEVEL_OWNED):
+		if c is Backdrop:
+			(c as Backdrop).set_camera(cam)
 
 
 func _add_hud() -> void:
