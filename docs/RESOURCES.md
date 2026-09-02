@@ -106,11 +106,18 @@ procedural audio engine is achievable.
 | Tool | Where | Use |
 |---|---|---|
 | Godot 4.7.2 | `AppData/Local/Programs/Godot/Standard` | the engine |
-| visual-rig venv | `dev/visual-rig/.venv` | the only working Python + PIL |
+| Python + PIL | `AppData\Local\Programs\Python\Python313\python.exe` | working interpreter with Pillow |
 | GitHub CLI | `C:\Program Files\GitHub CLI` | verification of pushes |
 
 **Trap:** the machine's default `python`/`python3` are WindowsApps stubs that
-fail with "Permission denied". Use the visual-rig venv interpreter.
+fail with "Permission denied". Use the full path above, not bare `python`.
+
+**Updated 29 Aug 2026:** this previously pointed at `dev/visual-rig/.venv`,
+which was this machine's only working Python+PIL and is now deleted — that
+tool is gone entirely, and its venv going with it silently broke this
+dependency, since it was never recorded anywhere the deletion could have
+checked against. Pillow has been installed directly into the base Python
+above instead, which needs nothing else to keep working.
 
 ---
 
