@@ -9,8 +9,7 @@ characters. It works. This port exists to give it a real engine underneath —
 scenes, resources, an asset pipeline, and platform targets the browser cannot
 reach — without losing the thing that took 48 rounds to get right.
 
-Set in the same universe as [World Aflame](https://github.com/dancockrell/world-aflame),
-and governed by the same lore bible.
+Set in the same historical universe as the retired World Aflame project. Both World Aflame game repositories were deleted on 5 September 2026; the separate [lore repository](https://github.com/dancockrell/project-42-worldbuilding) remains historical reference.
 
 ## Status
 
